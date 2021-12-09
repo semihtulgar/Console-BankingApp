@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 
 namespace BankingApp
@@ -8,6 +9,7 @@ namespace BankingApp
         static void Main(string[] args)
         {
             Banka bankaInitialize = new Banka();
+
 
         }
     }

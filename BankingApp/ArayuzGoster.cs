@@ -11,8 +11,8 @@ namespace BankingApp
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("-> Hesap Açma İşlemleri \n");
             string[] hesapTurleri = new string[] {
-                "-> Kısa Vadeli Hesap Açma (1) (5.000 TL)",
-                "-> Uzun Vadeli Hesap Açma (2) (10.000 TL)",
+                "-> Kısa Vadeli Hesap Açma (1) (min 5.000 TL)",
+                "-> Uzun Vadeli Hesap Açma (2) (min 10.000 TL)",
                 "-> Özel Hesap Açma (3) (Minimum Limit Yok)",
                 "-> Cari Hesap Açma (4) (Minimum Limit Yok)"
             };
@@ -20,6 +20,7 @@ namespace BankingApp
             {
                 Console.WriteLine($"\t{hesapTuru}\n");
             }
+
             string[] digerHesapIslemleri = new string[] {
                 "-> Para Yatırma İşlemi (5)",
                 "-> Para Çekme İşlemi (6)",
