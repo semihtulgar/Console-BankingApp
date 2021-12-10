@@ -40,7 +40,8 @@ namespace BankingApp
     enum IslemTuru
     {
         HesapOlusturma = 1,
-        ParaCekme = 2,
-        ParaYatirma = 3
+        ParaYatirma = 2,
+        ParaCekme = 3,
+        
     }
 }

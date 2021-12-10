@@ -28,8 +28,8 @@ namespace BankingApp
                         // Hesap Açma İşlemi
                         bankaHesaplari.Add(hesap.HesapAc());
                         IslemGecmisi.Add(islem.HesapOlusturIslem(IslemGecmisi, bankaHesaplari));
-                        HesapGoster(bankaHesaplari);
                         IslemDekontuGoster(IslemGecmisi);
+                        HesapGoster(bankaHesaplari);
                         Console.WriteLine("\n");
                         arayuzGoster.InitializeUI();
                         Console.Write("Yapmak İstediğiniz İşlemi Yazınız (1-9) : ");
@@ -43,8 +43,14 @@ namespace BankingApp
                     case "8":
                         // Hesap Durumu
                         Console.Write("Hesap No Giriniz : ");
-                        hesap.HesapDurum(Console.ReadLine(), bankaHesaplari);
+                        string hesapNo = Console.ReadLine();
+                        // Kar tutarı Hesaplar
+                        hesap.KarTutari(HesapNoKontrol(hesapNo, bankaHesaplari), hesapNo, bankaHesaplari, IslemGecmisi);
+
+                        // Hesabın son durumunu görüntüler
+                        hesap.HesapDurum(HesapNoKontrol(hesapNo, bankaHesaplari), hesapNo, bankaHesaplari);
                         Console.WriteLine("\n");
+
                         arayuzGoster.InitializeUI();
                         Console.Write("Yapmak İstediğiniz İşlemi Yazınız (1-9) : ");
                         break;
@@ -66,15 +72,27 @@ namespace BankingApp
             } while (islemDegeri != "q");
         }
 
+        public bool HesapNoKontrol(string hesapNo, List<Hesap> bankaHesaplari)
+        {
+            {
+                int result = bankaHesaplari.FindIndex(bankaHesabi => bankaHesabi.HesapNo == hesapNo);
+                if (result != -1)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
 
-
-
-        public void ParaYatir()
+        public void ParaYatir(string hesapNo)
         {
 
         }
 
-        public void ParaCek() { }
+        public void ParaCek(string hesapNo) { }
 
         public void HesapListesi(List<Hesap> bankaHesaplari)
         {

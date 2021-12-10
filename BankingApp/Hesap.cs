@@ -90,38 +90,29 @@ namespace BankingApp
             return hesap;
         }
 
-        public void HesapDurum(string hesapNo, List<Hesap> bankaHesaplari)
+        public void HesapDurum(bool hesapDurum, string hesapNo, List<Hesap> bankaHesaplari)
         {
-            if (hesapNo.Length == 8)
+            if (hesapDurum)
             {
-                int result = bankaHesaplari.FindIndex(bankaHesabi => bankaHesabi.HesapNo == hesapNo);
-                if (result != -1)
-                {
-                    Console.WriteLine("\n");
-                    Console.WriteLine("********************************************");
-                    Console.WriteLine($"Hesap Numarası : {bankaHesaplari[result].HesapNo}");
-                    Console.WriteLine($"İsim : {bankaHesaplari[result].Isim}");
-                    Console.WriteLine($"Soyisim : {bankaHesaplari[result].Soyisim}");
-                    Console.WriteLine($"Banka Hesap Türü : {bankaHesaplari[result].HesapTuruDeger}");
-                    Console.WriteLine($"Hesap Oluşturulma Tarihi : {bankaHesaplari[result].OlusturulmaTarihi}");
-                    Console.WriteLine($"Bakiye : {bankaHesaplari[result].Bakiye}");
-                    Console.WriteLine($"Çekiliş Hakkı : {bankaHesaplari[result].CekilisHakki}");
-                    Console.WriteLine("********************************************");
-                }
-                else
-                {
-                    Console.WriteLine("Hesap Bulunamadı!");
-                }
-
+                int result = bankaHesaplari.FindIndex(item => item.HesapNo == hesapNo);
+                Console.WriteLine("\n");
+                Console.WriteLine("********************************************");
+                Console.WriteLine($"Hesap Numarası : {bankaHesaplari[result].HesapNo}");
+                Console.WriteLine($"İsim : {bankaHesaplari[result].Isim}");
+                Console.WriteLine($"Soyisim : {bankaHesaplari[result].Soyisim}");
+                Console.WriteLine($"Banka Hesap Türü : {bankaHesaplari[result].HesapTuruDeger}");
+                Console.WriteLine($"Hesap Oluşturulma Tarihi : {bankaHesaplari[result].OlusturulmaTarihi}");
+                Console.WriteLine($"Bakiye : {bankaHesaplari[result].Bakiye}");
+                Console.WriteLine($"Çekiliş Hakkı : {bankaHesaplari[result].CekilisHakki}");
+                Console.WriteLine("********************************************");
             }
             else
             {
                 Console.WriteLine("\n\n");
                 Console.WriteLine("************************************");
-                Console.WriteLine("Hesap uzunluğu 8 karakter olmalıdır!");
+                Console.WriteLine("Hesap Bulunamadı!");
                 Console.WriteLine("************************************");
             }
-
         }
 
         private string HesapNoTanımla()
@@ -133,6 +124,63 @@ namespace BankingApp
                 hesapNo += random.Next(0, 9);
             }
             return hesapNo;
+        }
+
+        public void KarTutari(bool hesapDurum, string hesapNo, List<Hesap> bankaHesaplari, List<Islem> islemGecmisi)
+        {
+            Islem islem = new Islem();
+
+            if (hesapDurum)
+            {
+                // aranan hesabın indexini bulur.
+                int result = bankaHesaplari.FindIndex(bankaHesabi => bankaHesabi.HesapNo == hesapNo);
+                for (int i = 0; i < islemGecmisi.Count; i++)
+                {
+                    if (islemGecmisi[i].HesapNo == bankaHesaplari[result].HesapNo)
+                    {
+                        switch (islemGecmisi[i].IslemTuru)
+                        {
+                            case IslemTuru.HesapOlusturma:
+                                if (bankaHesaplari[result].HesapTuruDeger == HesapTuru.KısaVadeli)
+                                {
+                                    DateTime dateTimeSimdi = DateTime.Today;
+                                    TimeSpan gunFarki = dateTimeSimdi.Subtract(islemGecmisi[i].IslemTarihi);
+                                    bankaHesaplari[result].Bakiye = Math.Floor(bankaHesaplari[result].Bakiye + ((bankaHesaplari[result].Bakiye * 15 * (int)gunFarki.Days) / (100 * 365)));
+                                    Console.WriteLine(bankaHesaplari[result].Bakiye);
+                                }
+                                else if (bankaHesaplari[result].HesapTuruDeger == HesapTuru.UzunVadeli)
+                                {
+                                    DateTime dateTimeSimdi = DateTime.Today;
+                                    TimeSpan gunFarki = dateTimeSimdi.Subtract(islemGecmisi[i].IslemTarihi);
+                                    bankaHesaplari[result].Bakiye = Math.Floor(bankaHesaplari[result].Bakiye + ((bankaHesaplari[result].Bakiye * 17 * (int)gunFarki.Days) / (100 * 365)));
+                                    Console.WriteLine(bankaHesaplari[result].Bakiye);
+                                }
+                                else if (bankaHesaplari[result].HesapTuruDeger == HesapTuru.Ozel)
+                                {
+                                    DateTime dateTimeSimdi = DateTime.Today;
+                                    TimeSpan gunFarki = dateTimeSimdi.Subtract(islemGecmisi[i].IslemTarihi);
+                                    bankaHesaplari[result].Bakiye = Math.Floor(bankaHesaplari[result].Bakiye + ((bankaHesaplari[result].Bakiye * 10 * (int)gunFarki.Days) / (100 * 365)));
+                                    Console.WriteLine(bankaHesaplari[result].Bakiye);
+                                }
+                                break;
+                            case IslemTuru.ParaYatirma:
+
+                                break;
+                            case IslemTuru.ParaCekme:
+                                break;
+                            default:
+                                break;
+                        }
+
+                    }
+
+                }
+            }
+            else
+            {
+                Console.WriteLine("Hesap Bulunamadı!");
+            }
+
         }
 
         private bool HesapTuruOnay(int geciciHesapTuruDeger)
