@@ -9,12 +9,12 @@ namespace BankingApp
         public void InitializeUI()
         {
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("-> Hesap Açma İşlemleri \n");
+            Console.WriteLine("-> Hesap Açma İşlemleri ( 1 ) \n");
             string[] hesapTurleri = new string[] {
-                "-> Kısa Vadeli Hesap Açma (1) (min 5.000 TL)",
-                "-> Uzun Vadeli Hesap Açma (2) (min 10.000 TL)",
-                "-> Özel Hesap Açma (3) (Minimum Limit Yok)",
-                "-> Cari Hesap Açma (4) (Minimum Limit Yok)"
+                "-> Kısa Vadeli Hesap Açma",
+                "-> Uzun Vadeli Hesap Açma",
+                "-> Özel Hesap Açma",
+                "-> Cari Hesap Açma"
             };
             foreach (var hesapTuru in hesapTurleri)
             {
@@ -22,12 +22,12 @@ namespace BankingApp
             }
 
             string[] digerHesapIslemleri = new string[] {
-                "-> Para Yatırma İşlemi (5)",
-                "-> Para Çekme İşlemi (6)",
-                "-> Hesap Listesi (7)",
-                "-> Hesap Durumu (8)",
-                "-> Hesap İşlem Kayıtları (9)",
-                "-> Çekiliş (10)",
+                "-> Para Yatırma İşlemi ( 2 )",
+                "-> Para Çekme İşlemi ( 3 )",
+                "-> Hesap Listesi ( 4 )",
+                "-> Hesap Durumu ( 5 )",
+                "-> Hesap İşlem Kayıtları ( 6 )",
+                "-> Çekiliş ( 7 )",
                 $"-> Çıkış için \"q\" giriniz"
             };
 

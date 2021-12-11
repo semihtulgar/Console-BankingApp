@@ -27,7 +27,6 @@ namespace BankingApp
             hesap.HesapNo = HesapNoTanımla();
 
             Console.WriteLine("\n");
-            Console.WriteLine("\n");
 
             Console.Write("İsim : ");
             hesap.Isim = Console.ReadLine().ToUpper();
@@ -44,18 +43,16 @@ namespace BankingApp
                 Console.WriteLine($"\t{hesapTuru}\n");
             }
 
-            Console.Write("Hesap Türü (1-4) : ");
-            int geciciHesapTuruDeger = Convert.ToInt16(Console.ReadLine());
-            while (!HesapTuruOnay(geciciHesapTuruDeger))
+
+            string geciciHesapTuruDegeri;
+            do
             {
-                Console.WriteLine("***************************");
-                Console.WriteLine("Geçersiz Hesap Türü Değeri!");
-                Console.WriteLine("***************************");
-                Console.WriteLine("\n\n");
                 Console.Write("Hesap Türü (1-4) : ");
-                geciciHesapTuruDeger = Convert.ToInt16(Console.ReadLine());
-            }
-            hesap.HesapTuruDeger = (HesapTuru)geciciHesapTuruDeger;
+                geciciHesapTuruDegeri = Console.ReadLine();
+
+            } while (HesapTuruOnay(geciciHesapTuruDegeri) == false);
+
+            hesap.HesapTuruDeger = (HesapTuru)Convert.ToInt32(geciciHesapTuruDegeri);
             Console.WriteLine("\n");
 
 
@@ -70,7 +67,7 @@ namespace BankingApp
             hesap.OlusturulmaTarihi = geciciTarihDeger;
             Console.WriteLine("\n");
 
-            Console.Write("Yüklenecek Para Miktarı (₺) : ");
+            Console.Write("Yüklenecek Para Miktarı (Kuruşu \",\" ile belirtiniz) : ");
             double geciciBakiye = Convert.ToDouble(Console.ReadLine());
             while (HesapBakiyeOnay(hesap.HesapTuruDeger, geciciBakiye) == false)
             {
@@ -96,15 +93,15 @@ namespace BankingApp
             {
                 int result = bankaHesaplari.FindIndex(item => item.HesapNo == hesapNo);
                 Console.WriteLine("\n");
-                Console.WriteLine("********************************************");
+                Console.WriteLine("********************* HESAP DURUMU *********************");
                 Console.WriteLine($"Hesap Numarası : {bankaHesaplari[result].HesapNo}");
                 Console.WriteLine($"İsim : {bankaHesaplari[result].Isim}");
                 Console.WriteLine($"Soyisim : {bankaHesaplari[result].Soyisim}");
                 Console.WriteLine($"Banka Hesap Türü : {bankaHesaplari[result].HesapTuruDeger}");
                 Console.WriteLine($"Hesap Oluşturulma Tarihi : {bankaHesaplari[result].OlusturulmaTarihi}");
-                Console.WriteLine($"Bakiye : {bankaHesaplari[result].Bakiye}");
+                Console.WriteLine($"Bakiye : {bankaHesaplari[result].Bakiye} TL");
                 Console.WriteLine($"Çekiliş Hakkı : {bankaHesaplari[result].CekilisHakki}");
-                Console.WriteLine("********************************************");
+                Console.WriteLine("********************* HESAP DURUMU *********************");
             }
             else
             {
@@ -128,64 +125,63 @@ namespace BankingApp
 
         public void KarTutari(bool hesapDurum, string hesapNo, List<Hesap> bankaHesaplari, List<Islem> islemGecmisi)
         {
-            Islem islem = new Islem();
+            //Islem islem = new Islem();
 
-            if (hesapDurum)
-            {
-                // aranan hesabın indexini bulur.
-                int result = bankaHesaplari.FindIndex(bankaHesabi => bankaHesabi.HesapNo == hesapNo);
-                for (int i = 0; i < islemGecmisi.Count; i++)
-                {
-                    if (islemGecmisi[i].HesapNo == bankaHesaplari[result].HesapNo)
-                    {
-                        switch (islemGecmisi[i].IslemTuru)
-                        {
-                            case IslemTuru.HesapOlusturma:
-                                if (bankaHesaplari[result].HesapTuruDeger == HesapTuru.KısaVadeli)
-                                {
-                                    DateTime dateTimeSimdi = DateTime.Today;
-                                    TimeSpan gunFarki = dateTimeSimdi.Subtract(islemGecmisi[i].IslemTarihi);
-                                    bankaHesaplari[result].Bakiye = Math.Floor(bankaHesaplari[result].Bakiye + ((bankaHesaplari[result].Bakiye * 15 * (int)gunFarki.Days) / (100 * 365)));
-                                    Console.WriteLine(bankaHesaplari[result].Bakiye);
-                                }
-                                else if (bankaHesaplari[result].HesapTuruDeger == HesapTuru.UzunVadeli)
-                                {
-                                    DateTime dateTimeSimdi = DateTime.Today;
-                                    TimeSpan gunFarki = dateTimeSimdi.Subtract(islemGecmisi[i].IslemTarihi);
-                                    bankaHesaplari[result].Bakiye = Math.Floor(bankaHesaplari[result].Bakiye + ((bankaHesaplari[result].Bakiye * 17 * (int)gunFarki.Days) / (100 * 365)));
-                                    Console.WriteLine(bankaHesaplari[result].Bakiye);
-                                }
-                                else if (bankaHesaplari[result].HesapTuruDeger == HesapTuru.Ozel)
-                                {
-                                    DateTime dateTimeSimdi = DateTime.Today;
-                                    TimeSpan gunFarki = dateTimeSimdi.Subtract(islemGecmisi[i].IslemTarihi);
-                                    bankaHesaplari[result].Bakiye = Math.Floor(bankaHesaplari[result].Bakiye + ((bankaHesaplari[result].Bakiye * 10 * (int)gunFarki.Days) / (100 * 365)));
-                                    Console.WriteLine(bankaHesaplari[result].Bakiye);
-                                }
-                                break;
-                            case IslemTuru.ParaYatirma:
+            //if (hesapDurum)
+            //{
+            //    // aranan hesabın indexini bulur.
+            //    int result = bankaHesaplari.FindIndex(bankaHesabi => bankaHesabi.HesapNo == hesapNo);
+            //    for (int i = 0; i < islemGecmisi.Count; i++)
+            //    {
+            //        if (islemGecmisi[i].HesapNo == bankaHesaplari[result].HesapNo)
+            //        {
+            //            switch (islemGecmisi[i].IslemTuru)
+            //            {
+            //                case IslemTuru.HesapOlusturma:
+            //                    if (bankaHesaplari[result].HesapTuruDeger == HesapTuru.KısaVadeli)
+            //                    {
+            //                        DateTime dateTimeSimdi = DateTime.Today;
+            //                        TimeSpan gunFarki = dateTimeSimdi.Subtract(islemGecmisi[i].IslemTarihi);
+            //                        bankaHesaplari[result].Bakiye = Math.Round(bankaHesaplari[result].Bakiye + ((bankaHesaplari[result].Bakiye * 15 * (int)gunFarki.Days) / (100 * 365)), 2, MidpointRounding.ToZero);
+            //                        Console.WriteLine(bankaHesaplari[result].Bakiye);
+            //                    }
+            //                    else if (bankaHesaplari[result].HesapTuruDeger == HesapTuru.UzunVadeli)
+            //                    {
+            //                        DateTime dateTimeSimdi = DateTime.Today;
+            //                        TimeSpan gunFarki = dateTimeSimdi.Subtract(islemGecmisi[i].IslemTarihi);
+            //                        bankaHesaplari[result].Bakiye = Math.Round(bankaHesaplari[result].Bakiye + ((bankaHesaplari[result].Bakiye * 17 * (int)gunFarki.Days) / (100 * 365)), 2, MidpointRounding.ToZero);
+            //                        Console.WriteLine(bankaHesaplari[result].Bakiye);
+            //                    }
+            //                    else if (bankaHesaplari[result].HesapTuruDeger == HesapTuru.Ozel)
+            //                    {
+            //                        DateTime dateTimeSimdi = DateTime.Today;
+            //                        TimeSpan gunFarki = dateTimeSimdi.Subtract(islemGecmisi[i].IslemTarihi);
+            //                        bankaHesaplari[result].Bakiye = Math.Round(bankaHesaplari[result].Bakiye + ((bankaHesaplari[result].Bakiye * 10 * (int)gunFarki.Days) / (100 * 365)), 2, MidpointRounding.ToZero);
+            //                        Console.WriteLine(bankaHesaplari[result].Bakiye);
+            //                    }
+            //                    break;
+            //                case IslemTuru.ParaYatirma:
 
-                                break;
-                            case IslemTuru.ParaCekme:
-                                break;
-                            default:
-                                break;
-                        }
+            //                    break;
+            //                case IslemTuru.ParaCekme:
+            //                    break;
+            //                default:
+            //                    break;
+            //            }
 
-                    }
+            //        }
 
-                }
-            }
-            else
-            {
-                Console.WriteLine("Hesap Bulunamadı!");
-            }
-
+            //    }
+            //}
+            //else
+            //{
+            //    Console.WriteLine("Hesap Bulunamadı!");
+            //}
         }
 
-        private bool HesapTuruOnay(int geciciHesapTuruDeger)
+        private bool HesapTuruOnay(string geciciHesapTuruDeger)
         {
-            if (geciciHesapTuruDeger.Equals(1) || geciciHesapTuruDeger.Equals(2) || geciciHesapTuruDeger.Equals(3) || geciciHesapTuruDeger.Equals(4))
+            if (geciciHesapTuruDeger.Equals("1") || geciciHesapTuruDeger.Equals("2") || geciciHesapTuruDeger.Equals("3") || geciciHesapTuruDeger.Equals("4"))
             {
                 return true;
             }
@@ -207,10 +203,10 @@ namespace BankingApp
                     hesapOnayBool = geciciBakiye >= 10000 ? true : false;
                     return hesapOnayBool;
                 case 3:
-                    hesapOnayBool = geciciBakiye > 0 ? true : false;
+                    hesapOnayBool = geciciBakiye >= 0 ? true : false;
                     return hesapOnayBool;
                 case 4:
-                    hesapOnayBool = geciciBakiye > 0 ? true : false;
+                    hesapOnayBool = geciciBakiye >= 0 ? true : false;
                     return hesapOnayBool;
                 default:
                     return false;
@@ -218,10 +214,10 @@ namespace BankingApp
         }
 
         readonly string[] hesapTurleri = new string[] {
-                "-> Kısa Vadeli Hesap Açma (1)",
-                "-> Uzun Vadeli Hesap Açma (2)",
-                "-> Özel Hesap Açma (3)",
-                "-> Cari Hesap Açma (4)"
+                "-> Kısa Vadeli Hesap Açma (1) (min 5.000 TL)",
+                "-> Uzun Vadeli Hesap Açma (2) (min 10.000 TL)",
+                "-> Özel Hesap Açma (3) (Minimum Limit Yok)",
+                "-> Cari Hesap Açma (4) (Minimum Limit Yok)"
         };
 
     }

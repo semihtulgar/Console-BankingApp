@@ -42,6 +42,7 @@ namespace BankingApp
         HesapOlusturma = 1,
         ParaYatirma = 2,
         ParaCekme = 3,
+        Cekilis = 4
         
     }
 }
