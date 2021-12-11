@@ -10,6 +10,7 @@ namespace BankingApp
         public string HesapNo { get; set; }
         public DateTime IslemTarihi { get; set; }
         public IslemTuru IslemTuru { get; set; }
+        public string IslemAciklamasi { get; set; }
         public double Miktar { get; set; }
         public double OncekiBakiye { get; set; }
         public double SonrakiBakiye { get; set; }
@@ -26,6 +27,8 @@ namespace BankingApp
             islem.IslemTarihi = bankaHesaplari[bankaHesaplari.Count - 1].OlusturulmaTarihi;
 
             islem.IslemTuru = IslemTuru.HesapOlusturma;
+
+            islem.IslemAciklamasi = "Hesap Oluşturuldu...";
 
             islem.Miktar = bankaHesaplari[bankaHesaplari.Count - 1].Bakiye;
 

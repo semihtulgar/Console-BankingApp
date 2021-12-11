@@ -78,6 +78,10 @@ namespace BankingApp
                         Console.Write("Yapmak İstediğiniz İşlemi Yazınız (1 - 10) : ");
                         break;
                     case "7":
+                        // Çekiliş İşlemi
+                        double cekilisDegeri = CekilisDegeriOnay();
+                        Cekilis(Console.ReadLine(), cekilisDegeri ,bankaHesaplari, IslemGecmisi);
+
                         break;
                     case "q":
                         break;
@@ -120,7 +124,7 @@ namespace BankingApp
                     Console.Write("Tarih Giriniz (YIL,AY,GÜN) ya da (GÜN/AY/YIL) : ");
                     geciciTarihString = Console.ReadLine();
 
-                } while (!DateTime.TryParse(geciciTarihString, out geciciTarihDeger));
+                } while (!DateTime.TryParse(geciciTarihString, out geciciTarihDeger) || (geciciTarihDeger < bankaHesaplari[result].OlusturulmaTarihi));
                 islem.IslemTarihi = geciciTarihDeger;
                 Console.WriteLine("\n");
 
@@ -139,6 +143,9 @@ namespace BankingApp
                 // İşlem Miktar (+)
                 islem.Miktar = (double)yuklenecekBakiye;
 
+                // İşlem Açıklaması
+                islem.IslemAciklamasi = $"Banka Hesabına {islem.Miktar} TL Yatırıldı...";
+
                 Console.WriteLine("\n");
 
                 // Banka hesabına aktarılacak paradan önceki para miktarı
@@ -150,7 +157,8 @@ namespace BankingApp
                 // Banka hesabınının bakiyesini güncelle.
                 bankaHesaplari[result].Bakiye = (double)islem.SonrakiBakiye;
 
-                // Çekiliş miktarını ayarla ---------------------
+                // Çekiliş miktarı
+                bankaHesaplari[result].CekilisHakki += bankaHesaplari[result].HesapTuruDeger == HesapTuru.Cari ? 0 : (int)islem.Miktar / 1000;
 
                 // Oluşturulan işlemi işlem listesine ekliyoruz.
                 islemListesi.Add(islem);
@@ -189,7 +197,7 @@ namespace BankingApp
                     Console.Write("Banka Hesabından Çekmek İstediğiniz Miktar : ");
                     geciciCekilecekMiktar = Convert.ToDouble(Console.ReadLine());
 
-                } while (geciciCekilecekMiktar <= 0);
+                } while (geciciCekilecekMiktar < 0);
 
                 // Çekilecek miktar hesapta var mı?
                 if (bankaHesaplari[result].Bakiye >= geciciCekilecekMiktar)
@@ -208,7 +216,7 @@ namespace BankingApp
                         Console.Write("Tarih Giriniz (YIL,AY,GÜN) : ");
                         geciciTarihString = Console.ReadLine();
 
-                    } while (!DateTime.TryParse(geciciTarihString, out geciciTarihDeger) && !(DateTime.Compare(bankaHesaplari[result].OlusturulmaTarihi, geciciTarihDeger) < 0));
+                    } while (!DateTime.TryParse(geciciTarihString, out geciciTarihDeger) || (geciciTarihDeger < bankaHesaplari[result].OlusturulmaTarihi));
                     islem.IslemTarihi = geciciTarihDeger;
                     Console.WriteLine("\n");
 
@@ -216,6 +224,9 @@ namespace BankingApp
 
                     // İşlem Miktarı (-)
                     islem.Miktar = (double)geciciCekilecekMiktar;
+
+                    // İşlem Açıklaması
+                    islem.IslemAciklamasi = $"Banka Hesabından {islem.Miktar} TL Çekildi...";
 
                     // Para Çekiminden Önceki Bakiye
                     islem.OncekiBakiye = (double)bankaHesaplari[result].Bakiye;
@@ -225,6 +236,9 @@ namespace BankingApp
 
                     // Banka hesabınının bakiyesini güncelle.
                     bankaHesaplari[result].Bakiye = (double)islem.SonrakiBakiye;
+
+                    // Çekiliş Miktarı
+                    bankaHesaplari[result].CekilisHakki += bankaHesaplari[result].HesapTuruDeger == HesapTuru.Cari ? 0 : (int)islem.Miktar / 1000;
 
                     // Oluşturulan işlemi işlem listesine ekliyoruz.
                     islemListesi.Add(islem);
@@ -320,7 +334,13 @@ namespace BankingApp
             }
         }
 
-        public void Cekilis() { }
+        public void Cekilis(string hesapNo, double cekilisDegeri ,List<Hesap> bankaHesaplari, List<Islem> islemListesi)
+        {
+            // Eğer sistemde kayıtlı hesap yoksa çekiliş yapma
+                
+                // Sistemde kayıtlı kullanıcı var ancak çekiliş hakkı olmayan hesaplarsa çekiliş olmaz
+
+        }
 
         // İlave Fonksiyonlar
         public bool HesapNoKontrol(string hesapNo, List<Hesap> bankaHesaplari)
@@ -365,10 +385,26 @@ namespace BankingApp
             Console.WriteLine($"Hesap No : {islemGecmisi[dekontIndex].HesapNo}");
             Console.WriteLine($"İşlem Tarihi : {islemGecmisi[dekontIndex].IslemTarihi}");
             Console.WriteLine($"İşlem Türü : {islemGecmisi[dekontIndex].IslemTuru}");
+            Console.WriteLine($"İşlem Açıklaması : {islemGecmisi[dekontIndex].IslemAciklamasi}");
             Console.WriteLine($"Miktar (TL) : {(double)islemGecmisi[dekontIndex].Miktar} TL");
             Console.WriteLine($"Önceki Bakiye (TL) : {(double)islemGecmisi[dekontIndex].OncekiBakiye} TL");
             Console.WriteLine($"Sonraki Bakiye (TL) : {(double)islemGecmisi[dekontIndex].SonrakiBakiye} TL");
             Console.WriteLine("********************* İŞLEM DEKONTU *********************");
+        }
+
+        public double CekilisDegeriOnay()
+        {
+            double geciciCekilisDeger = 0;
+            do
+            {
+                Console.Write("Çekiliş Kaç TL Değerinde Olacak : ");
+                geciciCekilisDeger = Convert.ToDouble(Console.ReadLine());
+
+            } while (geciciCekilisDeger == 0 || geciciCekilisDeger < 0);
+
+
+            return geciciCekilisDeger;
+
         }
 
 

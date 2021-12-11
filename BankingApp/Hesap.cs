@@ -60,7 +60,7 @@ namespace BankingApp
             DateTime geciciTarihDeger;
             do
             {
-                Console.Write("Tarih Giriniz (YIL,AY,GÜN) ya da (GÜN/AY/YIL) : ");
+                Console.Write("Tarih Giriniz (YIL,AY,GÜN) : ");
                 geciciTarihString = Console.ReadLine();
 
             } while (!DateTime.TryParse(geciciTarihString, out geciciTarihDeger));
@@ -107,7 +107,7 @@ namespace BankingApp
             {
                 Console.WriteLine("\n\n");
                 Console.WriteLine("************************************");
-                Console.WriteLine("Hesap Bulunamadı!");
+                Console.WriteLine("\tHesap Bulunamadı!");
                 Console.WriteLine("************************************");
             }
         }

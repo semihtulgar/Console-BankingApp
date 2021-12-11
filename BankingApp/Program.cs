@@ -9,9 +9,7 @@ namespace BankingApp
         static void Main(string[] args)
         {
             Banka bankaInitialize = new Banka();
-
-
-
         }
+
     }
 }
