@@ -118,65 +118,32 @@ namespace BankingApp
             for (int i = 0; i < 8; i++)
             {
                 Random random = new Random();
-                hesapNo += random.Next(0, 9);
+                hesapNo += random.Next(0, 10);
             }
             return hesapNo;
         }
 
         public void KarTutari(bool hesapDurum, string hesapNo, List<Hesap> bankaHesaplari, List<Islem> islemGecmisi)
         {
-            //Islem islem = new Islem();
+            // İlgili hesap varsa hesaplamaya başla
+            if (hesapDurum)
+            {
+                // İlgili hesabın hesap türüne göre faiz hesaplanır
+                HesapTuru hesapTuru = bankaHesaplari.Find(item => item.HesapNo == hesapNo).HesapTuruDeger;
+                switch (hesapTuru)
+                {
+                    case HesapTuru.KısaVadeli:
 
-            //if (hesapDurum)
-            //{
-            //    // aranan hesabın indexini bulur.
-            //    int result = bankaHesaplari.FindIndex(bankaHesabi => bankaHesabi.HesapNo == hesapNo);
-            //    for (int i = 0; i < islemGecmisi.Count; i++)
-            //    {
-            //        if (islemGecmisi[i].HesapNo == bankaHesaplari[result].HesapNo)
-            //        {
-            //            switch (islemGecmisi[i].IslemTuru)
-            //            {
-            //                case IslemTuru.HesapOlusturma:
-            //                    if (bankaHesaplari[result].HesapTuruDeger == HesapTuru.KısaVadeli)
-            //                    {
-            //                        DateTime dateTimeSimdi = DateTime.Today;
-            //                        TimeSpan gunFarki = dateTimeSimdi.Subtract(islemGecmisi[i].IslemTarihi);
-            //                        bankaHesaplari[result].Bakiye = Math.Round(bankaHesaplari[result].Bakiye + ((bankaHesaplari[result].Bakiye * 15 * (int)gunFarki.Days) / (100 * 365)), 2, MidpointRounding.ToZero);
-            //                        Console.WriteLine(bankaHesaplari[result].Bakiye);
-            //                    }
-            //                    else if (bankaHesaplari[result].HesapTuruDeger == HesapTuru.UzunVadeli)
-            //                    {
-            //                        DateTime dateTimeSimdi = DateTime.Today;
-            //                        TimeSpan gunFarki = dateTimeSimdi.Subtract(islemGecmisi[i].IslemTarihi);
-            //                        bankaHesaplari[result].Bakiye = Math.Round(bankaHesaplari[result].Bakiye + ((bankaHesaplari[result].Bakiye * 17 * (int)gunFarki.Days) / (100 * 365)), 2, MidpointRounding.ToZero);
-            //                        Console.WriteLine(bankaHesaplari[result].Bakiye);
-            //                    }
-            //                    else if (bankaHesaplari[result].HesapTuruDeger == HesapTuru.Ozel)
-            //                    {
-            //                        DateTime dateTimeSimdi = DateTime.Today;
-            //                        TimeSpan gunFarki = dateTimeSimdi.Subtract(islemGecmisi[i].IslemTarihi);
-            //                        bankaHesaplari[result].Bakiye = Math.Round(bankaHesaplari[result].Bakiye + ((bankaHesaplari[result].Bakiye * 10 * (int)gunFarki.Days) / (100 * 365)), 2, MidpointRounding.ToZero);
-            //                        Console.WriteLine(bankaHesaplari[result].Bakiye);
-            //                    }
-            //                    break;
-            //                case IslemTuru.ParaYatirma:
+                        break;
+                    case HesapTuru.UzunVadeli:
 
-            //                    break;
-            //                case IslemTuru.ParaCekme:
-            //                    break;
-            //                default:
-            //                    break;
-            //            }
+                        break;
+                    case HesapTuru.Ozel:
 
-            //        }
+                        break;
+                }
 
-            //    }
-            //}
-            //else
-            //{
-            //    Console.WriteLine("Hesap Bulunamadı!");
-            //}
+            }
         }
 
         private bool HesapTuruOnay(string geciciHesapTuruDeger)
