@@ -62,7 +62,7 @@ namespace BankingApp
                         Console.Write("Hesap No Giriniz : ");
                         hesapNo = Console.ReadLine();
                         // Hesabın zamana bağlı kar tutarını ve güncel bakiyesini hesaplar
-                        hesap.KarTutari(HesapNoKontrol(hesapNo, bankaHesaplari), hesapNo, bankaHesaplari, IslemGecmisi);
+                        hesap.KarTutari(HesapNoKontrol(hesapNo, bankaHesaplari), DateTime.Today, hesapNo, bankaHesaplari, IslemGecmisi);
 
                         // Hesabın son durumunu görüntüler
                         hesap.HesapDurum(HesapNoKontrol(hesapNo, bankaHesaplari), hesapNo, bankaHesaplari);
@@ -110,11 +110,8 @@ namespace BankingApp
                 // İlgili banka hesabını bul
                 int result = bankaHesaplari.FindIndex(bankaHesabi => bankaHesabi.HesapNo == hesapNo);
 
-                Console.WriteLine("\n");
-                Console.WriteLine("****************************************");
-                Console.WriteLine($"Banka Hesap Bakiyeniz : {bankaHesaplari[result].Bakiye}");
-                Console.WriteLine("****************************************");
-                Console.WriteLine("\n");
+                // hesap sınıfının örneğini alıyoruz.
+                Hesap hesap = new Hesap();
 
                 // Yeni işlem oluştur.
                 Islem islem = new Islem();
@@ -131,12 +128,21 @@ namespace BankingApp
                     Console.Write("Tarih Giriniz (YIL,AY,GÜN) ya da (GÜN/AY/YIL) : ");
                     geciciTarihString = Console.ReadLine();
 
-                } while (!DateTime.TryParse(geciciTarihString, out geciciTarihDeger) || (geciciTarihDeger < islemListesi.FindLast(item => item.HesapNo == hesapNo).IslemTarihi) /*|| bankaHesaplari[result].OlusturulmaTarihi*/);
+                } while (!DateTime.TryParse(geciciTarihString, out geciciTarihDeger) || (geciciTarihDeger < islemListesi.FindLast(item => item.HesapNo == hesapNo).IslemTarihi));
                 islem.IslemTarihi = geciciTarihDeger;
                 Console.WriteLine("\n");
 
+                // Anaparaya eklenecek faiz gelirinin hesaplanması
+                hesap.KarTutari(true, islem.IslemTarihi, hesapNo, bankaHesaplari, islemListesi);
+
                 // İşlem türü tanımlanıyor
                 islem.IslemTuru = IslemTuru.ParaYatirma;
+
+                Console.WriteLine("\n");
+                Console.WriteLine("****************************************");
+                Console.WriteLine($"Banka Hesap Bakiyeniz : {bankaHesaplari[result].Bakiye}");
+                Console.WriteLine("****************************************");
+                Console.WriteLine("\n");
 
                 // Yüklencek miktar belirleniyor
                 double yuklenecekBakiye = 0;
@@ -148,7 +154,7 @@ namespace BankingApp
                 } while (yuklenecekBakiye <= 0);
 
                 // İşlem Miktar (+)
-                islem.Miktar = (double)yuklenecekBakiye;
+                islem.Miktar = yuklenecekBakiye;
 
                 // İşlem Açıklaması
                 islem.IslemAciklamasi = $"Banka Hesabına {islem.Miktar} TL Yatırıldı...";
@@ -156,10 +162,10 @@ namespace BankingApp
                 Console.WriteLine("\n");
 
                 // Banka hesabına aktarılacak paradan önceki para miktarı
-                islem.OncekiBakiye = (double)bankaHesaplari[result].Bakiye;
+                islem.OncekiBakiye = bankaHesaplari[result].Bakiye;
 
                 // İlgili hesabın son durumu
-                islem.SonrakiBakiye = (double)islem.OncekiBakiye + (double)islem.Miktar;
+                islem.SonrakiBakiye = Math.Round((islem.OncekiBakiye + islem.Miktar), 2, MidpointRounding.ToZero);
 
                 // Banka hesabınının bakiyesini güncelle.
                 bankaHesaplari[result].Bakiye = (double)islem.SonrakiBakiye;
@@ -198,16 +204,33 @@ namespace BankingApp
                 // İlgili banka hesabını bul
                 int result = bankaHesaplari.FindIndex(bankaHesabi => bankaHesabi.HesapNo == hesapNo);
 
+                // hesap sınıfının örneğini alıyoruz.
+                Hesap hesap = new Hesap();
+
                 // yeni bir işlem oluşturuyoruz
                 Islem islem = new Islem();
-                
+
+                // İşlem Tarihi
+                string geciciTarihString = "";
+                DateTime geciciTarihDeger;
+                do
+                {
+                    Console.Write("Tarih Giriniz (YIL,AY,GÜN) : ");
+                    geciciTarihString = Console.ReadLine();
+
+                } while (!DateTime.TryParse(geciciTarihString, out geciciTarihDeger) || (geciciTarihDeger < islemListesi.FindLast(item => item.HesapNo == hesapNo).IslemTarihi));
+                islem.IslemTarihi = geciciTarihDeger;
+                Console.WriteLine("\n");
+
+                // Anaparaya eklenecek faiz gelirinin hesaplanması
+                hesap.KarTutari(true, islem.IslemTarihi, hesapNo, bankaHesaplari, islemListesi);
+
                 Console.WriteLine("\n");
                 Console.WriteLine("****************************************");
                 Console.WriteLine($"Banka Hesap Bakiyeniz : {bankaHesaplari[result].Bakiye}");
                 Console.WriteLine("****************************************");
                 Console.WriteLine("\n");
-                
-                
+
                 double geciciCekilecekMiktar = 0;
                 do
                 {
@@ -225,34 +248,23 @@ namespace BankingApp
                     // Hesap No
                     islem.HesapNo = hesapNo;
 
-                    // İşlem Tarihi
-                    string geciciTarihString = "";
-                    DateTime geciciTarihDeger;
-                    do
-                    {
-                        Console.Write("Tarih Giriniz (YIL,AY,GÜN) : ");
-                        geciciTarihString = Console.ReadLine();
-
-                    } while (!DateTime.TryParse(geciciTarihString, out geciciTarihDeger) || (geciciTarihDeger < islemListesi.FindLast(item => item.HesapNo == hesapNo).IslemTarihi) /*|| bankaHesaplari[result].OlusturulmaTarihi*/);
-                    islem.IslemTarihi = geciciTarihDeger;
-                    Console.WriteLine("\n");
-
+                    // İşlem Türünü belirtiyoruz
                     islem.IslemTuru = IslemTuru.ParaCekme;
 
                     // İşlem Miktarı (-)
-                    islem.Miktar = (double)geciciCekilecekMiktar;
+                    islem.Miktar = geciciCekilecekMiktar;
 
                     // İşlem Açıklaması
                     islem.IslemAciklamasi = $"Banka Hesabından {islem.Miktar} TL Çekildi...";
 
                     // Para Çekiminden Önceki Bakiye
-                    islem.OncekiBakiye = (double)bankaHesaplari[result].Bakiye;
+                    islem.OncekiBakiye = bankaHesaplari[result].Bakiye;
 
                     // Para Çekiminden Sonraki Bakiye
-                    islem.SonrakiBakiye = (double)bankaHesaplari[result].Bakiye - islem.Miktar;
+                    islem.SonrakiBakiye = Math.Round((bankaHesaplari[result].Bakiye - islem.Miktar), 2 ,MidpointRounding.ToZero);
 
                     // Banka hesabınının bakiyesini güncelle.
-                    bankaHesaplari[result].Bakiye = (double)islem.SonrakiBakiye;
+                    bankaHesaplari[result].Bakiye = islem.SonrakiBakiye;
 
                     // Çekiliş Miktarı
                     bankaHesaplari[result].CekilisHakki += bankaHesaplari[result].HesapTuruDeger == HesapTuru.Cari ? 0 : (int)islem.Miktar / 1000;
@@ -388,7 +400,8 @@ namespace BankingApp
                     // Çekilişi Kazanan Hesabın Numarasını atıyoruz
                     islem.HesapNo = cekilisHesaplari[cekilisHesabiIndex].HesapNo;
 
-                    hesap.KarTutari(HesapNoKontrol(islem.HesapNo, bankaHesaplari), islem.HesapNo, bankaHesaplari, islemListesi);
+                    // Anaparaya eklenecek faiz gelirinin hesaplanması
+                    hesap.KarTutari(true, DateTime.Today, islem.HesapNo, bankaHesaplari, islemListesi);
 
                     // İşlem tarihini atıyoruz
                     islem.IslemTarihi = DateTime.Today;
