@@ -128,21 +128,147 @@ namespace BankingApp
             // İlgili hesap varsa hesaplamaya başla
             if (hesapDurum)
             {
+                // İlgili Hesabın İşlem Geçmişini bulalım
+                List<Islem> hesapIslemGecmisi = islemGecmisi.FindAll(hesap => hesap.HesapNo.Equals(hesapNo));
+
                 // İlgili hesabın hesap türüne göre faiz hesaplanır
                 HesapTuru hesapTuru = bankaHesaplari.Find(item => item.HesapNo == hesapNo).HesapTuruDeger;
-                switch (hesapTuru)
+
+                // İlgili hesabın hesap türüne göre sahip olduğu faiz oranını buluyoruz.
+                float faizOrani = FaizOraniNedir(hesapTuru);
+
+                double toplamBakiye = 0; // Para çekim , para yükleme işlemleri ve çekiliş işlemleri gerçekleştiren hesabın anapara ile birlikte elde ettiği faiz geliri.
+
+                // Hesap üzerinden gerçekleştirilen işlemlerin sırasıyla tarihlerini aldık.
+                List<DateTime> islemTarihleri = new List<DateTime>();
+                hesapIslemGecmisi.ForEach(item => islemTarihleri.Add(item.IslemTarihi));
+
+                int bankaHesabiIndex = bankaHesaplari.FindIndex(item => item.HesapNo == hesapNo);
+
+                for (int i = 0; i < hesapIslemGecmisi.Count; i++)
                 {
-                    case HesapTuru.KısaVadeli:
-
-                        break;
-                    case HesapTuru.UzunVadeli:
-
-                        break;
-                    case HesapTuru.Ozel:
-
-                        break;
+                    switch (hesapIslemGecmisi[i].IslemTuru)
+                    {
+                        case IslemTuru.HesapOlusturma:
+                            if (islemTarihleri.Count == 1)
+                            {
+                                // Sadece banka hesabı oluşturulduysa ve işlenen faiz isteniyorsa
+                                toplamBakiye += Math.Round(hesapIslemGecmisi[i].SonrakiBakiye + (hesapIslemGecmisi[i].SonrakiBakiye * (faizOrani / 365) * (DateTime.Today.Subtract(hesapIslemGecmisi[i].IslemTarihi)).Days), 2, MidpointRounding.ToZero);
+                                bankaHesaplari[bankaHesabiIndex].Bakiye = toplamBakiye;
+                            }
+                            else
+                            {
+                                // Banka hesabı oluşturulmuş ve hesap üzerinden başka işlemler gerçekleştirilmişse
+                                toplamBakiye += Math.Round(hesapIslemGecmisi[i].SonrakiBakiye + (hesapIslemGecmisi[i].SonrakiBakiye * (faizOrani / 365) * (DateTime.Today.Subtract(hesapIslemGecmisi[i + 1].IslemTarihi)).Days), 2, MidpointRounding.ToZero);
+                                bankaHesaplari[bankaHesabiIndex].Bakiye = toplamBakiye;
+                            }
+                            break;
+                        case IslemTuru.ParaYatirma:
+                            // Hesap oluşturma işlemi dışında para yatırma, para çekme veya çekiliş işlemleri de gerçekleştirildiyse
+                            if (islemTarihleri.Count > 1)
+                            {
+                                // Yapılan işlem Son işlem değilse
+                                if (islemTarihleri[islemTarihleri.Count - 1] != hesapIslemGecmisi[i].IslemTarihi)
+                                {
+                                    // Öncelikle hesaba aktarılmak istenen miktarı aktar
+                                    toplamBakiye += hesapIslemGecmisi[i].Miktar;
+                                    // Hesaba aktarılan miktarla beraber faizi hesapla
+                                    toplamBakiye += Math.Round(toplamBakiye + (toplamBakiye * (faizOrani / 365) * (hesapIslemGecmisi[i + 1].IslemTarihi.Subtract(hesapIslemGecmisi[i].IslemTarihi)).Days), 2, MidpointRounding.ToZero);
+                                    // Toplam bakiyesi hesaplanan miktarı hesaba aktar
+                                    bankaHesaplari[bankaHesabiIndex].Bakiye = toplamBakiye;
+                                }
+                                else
+                                {
+                                    // Yapılan işlem son işlemse
+                                    // Öncelikle hesaba aktarılmak istenen miktarı aktar
+                                    toplamBakiye += hesapIslemGecmisi[i].Miktar;
+                                    // Hesaba aktarılan miktarla beraber faizi hesapla
+                                    toplamBakiye = Math.Round(toplamBakiye + (toplamBakiye * (faizOrani / 365) * (DateTime.Today.Subtract(hesapIslemGecmisi[i].IslemTarihi)).Days), 2, MidpointRounding.ToZero);
+                                    // Toplam bakiyesi hesaplanan miktarı hesaba aktar
+                                    bankaHesaplari[bankaHesabiIndex].Bakiye = toplamBakiye;
+                                }
+                            }
+                            break;
+                        case IslemTuru.ParaCekme:
+                            // Hesap oluşturma işlemi dışında para yatırma, para çekme veya çekiliş işlemleri de gerçekleştirildiyse
+                            if (islemTarihleri.Count > 1)
+                            {
+                                // Yapılan işlem Son işlem değilse
+                                if (islemTarihleri[islemTarihleri.Count - 1] != hesapIslemGecmisi[i].IslemTarihi)
+                                {
+                                    // Öncelikle hesaba aktarılmak istenen miktarı aktar
+                                    toplamBakiye -= hesapIslemGecmisi[i].Miktar;
+                                    // Hesaba aktarılan miktarla beraber faizi hesapla
+                                    toplamBakiye = Math.Round(toplamBakiye + (toplamBakiye * (faizOrani / 365) * (hesapIslemGecmisi[i + 1].IslemTarihi.Subtract(hesapIslemGecmisi[i].IslemTarihi)).Days), 2, MidpointRounding.ToZero);
+                                    // Toplam bakiyesi hesaplanan miktarı hesaba aktar
+                                    bankaHesaplari[bankaHesabiIndex].Bakiye = toplamBakiye;
+                                }
+                                else
+                                {
+                                    // Yapılan işlem son işlemse
+                                    // Öncelikle hesaba aktarılmak istenen miktarı aktar
+                                    toplamBakiye -= hesapIslemGecmisi[i].Miktar;
+                                    // Hesaba aktarılan miktarla beraber faizi hesapla
+                                    toplamBakiye = Math.Round(toplamBakiye + (toplamBakiye * (faizOrani / 365) * (DateTime.Today.Subtract(hesapIslemGecmisi[i].IslemTarihi)).Days), 2, MidpointRounding.ToZero);
+                                    // Toplam bakiyesi hesaplanan miktarı hesaba aktar
+                                    bankaHesaplari[bankaHesabiIndex].Bakiye = toplamBakiye;
+                                }
+                            }
+                            break;
+                        case IslemTuru.Cekilis:
+                            // Hesap oluşturma işlemi dışında para yatırma, para çekme veya çekiliş işlemleri de gerçekleştirildiyse
+                            if (islemTarihleri.Count > 1)
+                            {
+                                // Yapılan işlem Son işlem değilse
+                                if (islemTarihleri[islemTarihleri.Count - 1] == hesapIslemGecmisi[i].IslemTarihi)
+                                {
+                                    // Öncelikle hesaba aktarılmak istenen miktarı aktar
+                                    toplamBakiye += hesapIslemGecmisi[i].Miktar;
+                                    // Hesaba aktarılan miktarla beraber faizi hesapla
+                                    toplamBakiye = Math.Round(toplamBakiye + (toplamBakiye * (faizOrani / 365) * (hesapIslemGecmisi[i + 1].IslemTarihi.Subtract(hesapIslemGecmisi[i].IslemTarihi)).Days), 2, MidpointRounding.ToZero);
+                                    // Toplam bakiyesi hesaplanan miktarı hesaba aktar
+                                    bankaHesaplari[bankaHesabiIndex].Bakiye = toplamBakiye;
+                                }
+                                else
+                                {
+                                    // Yapılan işlem son işlemse
+                                    // Öncelikle hesaba aktarılmak istenen miktarı aktar
+                                    toplamBakiye += hesapIslemGecmisi[i].Miktar;
+                                    // Hesaba aktarılan miktarla beraber faizi hesapla
+                                    toplamBakiye = Math.Round(toplamBakiye + (toplamBakiye * (faizOrani / 365) * (DateTime.Today.Subtract(hesapIslemGecmisi[i].IslemTarihi)).Days), 2, MidpointRounding.ToZero);
+                                    // Toplam bakiyesi hesaplanan miktarı hesaba aktar
+                                    bankaHesaplari[bankaHesabiIndex].Bakiye = toplamBakiye;
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
 
+                // Anapara ve çeşitli işlemlerle birlikte işlenen faizin hesaba yansıtılması
+
+            }
+        }
+
+        // İlave Fonksiyonlar
+        private float FaizOraniNedir(HesapTuru hesapTuru)
+        {
+            if (hesapTuru == HesapTuru.KısaVadeli)
+            {
+                return 0.15F;
+            }
+            else if (hesapTuru == HesapTuru.UzunVadeli)
+            {
+                return 0.17F;
+            }
+            else if (hesapTuru == HesapTuru.Ozel)
+            {
+                return 0.10F;
+            }
+            else
+            {
+                return 0;
             }
         }
 

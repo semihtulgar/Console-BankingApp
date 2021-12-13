@@ -34,7 +34,7 @@ namespace BankingApp
 
             islem.OncekiBakiye = 0;
 
-            islem.SonrakiBakiye = islem.Miktar - islem.OncekiBakiye;
+            islem.SonrakiBakiye = islem.Miktar + islem.OncekiBakiye;
             
             return islem;
         }
