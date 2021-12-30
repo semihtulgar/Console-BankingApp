@@ -68,21 +68,21 @@ namespace BankingApp
                         hesap.HesapDurum(HesapNoKontrol(hesapNo, bankaHesaplari), hesapNo, bankaHesaplari);
                         Console.WriteLine("\n");
                         arayuzGoster.InitializeUI();
-                        Console.Write("Yapmak İstediğiniz İşlemi Yazınız (1 - 10) : ");
+                        Console.Write("Yapmak İstediğiniz İşlemi Yazınız (1 - 7) : ");
                         break;
                     case "6":
                         // Hesap İşlem Geçmişini Listele
                         Console.Write("Hesap No Giriniz : ");
                         HesapIslemKayıtlarıListele(Console.ReadLine(), bankaHesaplari, IslemGecmisi);
                         arayuzGoster.InitializeUI();
-                        Console.Write("Yapmak İstediğiniz İşlemi Yazınız (1 - 10) : ");
+                        Console.Write("Yapmak İstediğiniz İşlemi Yazınız (1 - 7) : ");
                         break;
                     case "7":
                         // Çekiliş İşlemi
                         double cekilisDegeri = CekilisDegeriOnay();
                         Cekilis(cekilisDegeri, bankaHesaplari, IslemGecmisi);
                         arayuzGoster.InitializeUI();
-                        Console.Write("Yapmak İstediğiniz İşlemi Yazınız (1 - 10) : ");
+                        Console.Write("Yapmak İstediğiniz İşlemi Yazınız (1 - 7) : ");
                         break;
                     case "q":
                         break;
@@ -93,7 +93,7 @@ namespace BankingApp
                         Console.WriteLine("**********************");
                         Console.WriteLine("\n\n");
                         arayuzGoster.InitializeUI();
-                        Console.Write("Yapmak İstediğiniz İşlemi Yazınız (1 - 10) : ");
+                        Console.Write("Yapmak İstediğiniz İşlemi Yazınız (1 - 7) : ");
                         break;
                 }
                 islemDegeri = Console.ReadLine();
